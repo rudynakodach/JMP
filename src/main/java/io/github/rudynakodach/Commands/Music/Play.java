@@ -19,7 +19,10 @@ public class Play extends ListenerAdapter {
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());
 
-            event.getGuild().getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+            if(!isAudioHandlerSet) {
+                event.getGuild().getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+                isAudioHandlerSet = !isAudioHandlerSet;
+            }
 
             String target = Objects.requireNonNull(event.getOption("url")).getAsString();
             if(target.equalsIgnoreCase("piw2m")) {

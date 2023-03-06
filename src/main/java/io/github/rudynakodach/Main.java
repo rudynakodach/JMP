@@ -17,6 +17,7 @@ public class Main {
     public static AudioPlayer player = playerManager.createPlayer();
     public static TrackScheduler trackScheduler = new TrackScheduler(player);
     public static TextChannel latestChan;
+    public static boolean isAudioHandlerSet = false;
     static JDA client;
     public static void main(String[] args) {
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -50,14 +51,14 @@ public class Main {
                 Commands.slash("stop", "wylacza muzyke i usuwa kolejke xdxdxdxdx bob"),
 
                 Commands.slash("search", "quandale sus the dingle")
-                        .addOption(OptionType.STRING, "querry", "ok", true)
+                        .addOption(OptionType.STRING, "query", "ok", true)
                         .addOption(OptionType.INTEGER, "page", "strona wyszukiwania", false),
 
                 Commands.slash("jump", "przeskakuje do miejsca w kolejce uwuajac poprzednie rzeczy")
                         .addOption(OptionType.INTEGER, "position","kupa",true),
 
                 Commands.slash("sp", "sp")
-                        .addOption(OptionType.STRING, "querry", "co wyszukac", true),
+                        .addOption(OptionType.STRING, "query", "co wyszukac", true),
 
                 Commands.slash("rm", "usuwa z kolejki")
                         .addOption(OptionType.INTEGER, "pos", "position", true)
@@ -78,6 +79,7 @@ public class Main {
         SearchPlay spHandler = new SearchPlay();
         Skip skipHandler = new Skip();
         Stop stopHandler = new Stop();
-        client.addEventListener(joinHandler,jumpHandler,leaveHandler,loopHandler,npHandler,pauseHandler,playHandler, queueHandler, rmHandler,searchHandler,spHandler,skipHandler,stopHandler);
+        client.addEventListener(joinHandler, jumpHandler, leaveHandler, loopHandler, npHandler, pauseHandler, playHandler, queueHandler, rmHandler, searchHandler, spHandler, skipHandler, stopHandler);
+
     }
 }
