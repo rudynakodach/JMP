@@ -25,9 +25,6 @@ public class Play extends ListenerAdapter {
             }
 
             String target = Objects.requireNonNull(event.getOption("url")).getAsString();
-            if(target.equalsIgnoreCase("piw2m")) {
-                target = "C:\\Users\\Wiktor\\Desktop\\piw2m.mp3";
-            }
 
             playerManager.loadItem(target, new AudioLoadResultHandler() {
                 @Override
