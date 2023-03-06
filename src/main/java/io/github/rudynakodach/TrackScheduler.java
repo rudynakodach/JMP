@@ -105,7 +105,7 @@ public class TrackScheduler extends AudioEventAdapter {
         queue.clear();
     }
 
-    public String getTrackLength(AudioTrack track) {
+    public String formatProgress(AudioTrack track) {
         long position = track.getPosition() / 1000;
         long duration = track.getInfo().length / 1000;
         String formattedPosition = String.format("%d:%02d", position / 60, position % 60);
@@ -114,6 +114,17 @@ public class TrackScheduler extends AudioEventAdapter {
     }
     public String formatDuration(AudioTrack e) {
         long duration = e.getInfo().length / 1000;
-        return String.format("%d:%02d", duration / 60, duration % 60);
+        long hours = duration / 3600;
+        long minutes = (duration % 3600) / 60;
+        long seconds = duration % 60;
+
+        String formattedDuration = "";
+        if (hours > 0) {
+            formattedDuration += String.format("%d:", hours);
+        }
+
+        formattedDuration += String.format("%02d:%02d", minutes, seconds);
+
+        return formattedDuration;
     }
 }

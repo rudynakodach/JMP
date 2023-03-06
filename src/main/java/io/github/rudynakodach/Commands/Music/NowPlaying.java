@@ -1,7 +1,6 @@
 package io.github.rudynakodach.Commands.Music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import io.github.rudynakodach.AudioPlayerSendHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -18,7 +17,7 @@ public class NowPlaying extends ListenerAdapter {
             if(player.getPlayingTrack() != null) {
                 AudioTrack track = player.getPlayingTrack();
 
-                String durationString = trackScheduler.getTrackLength(track);
+                String durationString = trackScheduler.formatProgress(track);
 
                 AudioTrack nextSong = trackScheduler.nextElement();
 
@@ -32,6 +31,8 @@ public class NowPlaying extends ListenerAdapter {
                     eb.addField("Następne", "`Brak`", false);
                 }
                 event.getInteraction().replyEmbeds(eb.build()).queue();
+            } else {
+                event.getInteraction().reply("Nie wykryto utworu.").queue();
             }
         }
     }

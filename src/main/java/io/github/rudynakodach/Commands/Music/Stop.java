@@ -10,6 +10,7 @@ public class Stop extends ListenerAdapter {
         if(event.getName().equalsIgnoreCase("stop")) {
             player.stopTrack();
             trackScheduler.clearQueue();
+            event.getInteraction().reply("Usunięto.").queue();
         }
     }
 }

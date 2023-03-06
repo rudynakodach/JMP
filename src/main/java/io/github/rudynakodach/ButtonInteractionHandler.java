@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -58,6 +59,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 }
             });
         }
+
         else if(event.getComponentId().startsWith("YTSEARCH")) {
             String[] searchData = event.getComponentId().split("\\|");
             String query = searchData[0].split(":")[1].trim();
@@ -73,8 +75,8 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 HashMap<String, String> songMap = new HashMap<>();
                 for (int i = page * 5; i < page * 5 + 5; i++) {
                     AudioTrack e = playlist.getTracks().get(i);
-                    songMap.put(String.valueOf(i), e.getIdentifier());
-                    eb.addField("`[" + i + "]` " + e.getInfo().title, e.getInfo().author + " `" + trackScheduler.formatDuration(e) + "`", false);
+                    songMap.put(String.valueOf(i+1), e.getIdentifier());
+                    eb.addField("`[" + (i+1) + "]` " + e.getInfo().title, e.getInfo().author + " `" + trackScheduler.formatDuration(e) + "`", false);
                 }
 
                 Collection<LayoutComponent> components = new ArrayList<>();
@@ -97,6 +99,9 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 Button pgFwd = Button.secondary("YTSEARCH: " + query + " | PAGE: " + (page+1), Emoji.fromUnicode("U+27A1"));
                 pageButtons.add(pgFwd);
 
+                Button removeMessage = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
+                pageButtons.add(removeMessage);
+
                 components.add(ActionRow.of(buttons));
                 components.add(ActionRow.of(pageButtons));
 
@@ -104,6 +109,15 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 event.getInteraction().editMessageEmbeds(eb.build())
                         .setComponents(components).queue();
             }, null, null));
+        }
+
+        else if(event.getComponentId().startsWith("REMOVE")) {
+            String[] dataSplit = event.getComponentId().split("\\|");
+            String authorName = dataSplit[1].split(":")[1].trim();
+
+            if(authorName.equals(event.getUser().getName()) || event.getMember().hasPermission(Permission.ADMINISTRATOR) || event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                event.getMessage().delete().queue();
+            }
         }
     }
 }

@@ -11,8 +11,8 @@ public class Skip extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("skip")) {
             latestChan = event.getInteraction().getChannel().asTextChannel();
+            event.getInteraction().reply("Pominięto `" + player.getPlayingTrack().getInfo().title + "`.").queue();
             trackScheduler.nextTrack();
-            event.getInteraction().reply("Pominięto `" + player.getPlayingTrack().getInfo().title + "`!");
         }
     }
 }

@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.utils.data.DataObject;
 
 import java.awt.*;
 import java.util.*;
@@ -37,8 +36,8 @@ public class Search extends ListenerAdapter {
                 HashMap<String, String> songMap = new HashMap<>();
                 for (int i = page * 5; i < page * 5 + 5; i++) {
                     AudioTrack e = playlist.getTracks().get(i);
-                    songMap.put(String.valueOf(i), e.getIdentifier());
-                    embedBuilder.addField("`[" + i + "]` " + e.getInfo().title, e.getInfo().author + " `" + trackScheduler.formatDuration(e) + "`", false);
+                    songMap.put(String.valueOf(i+1), e.getIdentifier());
+                    embedBuilder.addField("`[" + (i+1) + "]` " + e.getInfo().title, e.getInfo().author + " `" + trackScheduler.formatDuration(e) + "`", false);
                 }
 
 
@@ -59,6 +58,10 @@ public class Search extends ListenerAdapter {
                 pageButtons.add(pgBack);
                 Button pgFwd = Button.secondary("YTSEARCH: " + query + " | PAGE: " + (page+1), Emoji.fromUnicode("U+27A1"));
                 pageButtons.add(pgFwd);
+
+                Button removeMessage = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
+                pageButtons.add(removeMessage);
+
                 embedBuilder.setFooter("Strona " + page);
                 event.getInteraction().replyEmbeds(embedBuilder.build()).addActionRow(
                         buttons

@@ -12,7 +12,7 @@ public class Leave extends ListenerAdapter {
             Main.latestChan = event.getInteraction().getChannel().asTextChannel();
             Main.audioManager.closeAudioConnection();
             Main.player.stopTrack();
-            event.getInteraction().reply("Uciekłem niczym zniewolony murzyn z pola uprawnego z kanału `" + event.getMember().getVoiceState().getChannel().getName() + "` :thumbsup:").queue();
+            event.getInteraction().reply("Opuszczono `" + event.getMember().getVoiceState().getChannel().getName() + "` :thumbsup:").queue();
         }
     }
 }

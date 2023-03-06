@@ -13,9 +13,9 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class Main {
     public static AudioManager audioManager;
-    public static AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-    public static AudioPlayer player = playerManager.createPlayer();
-    public static TrackScheduler trackScheduler = new TrackScheduler(player);
+    public static final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+    public static final AudioPlayer player = playerManager.createPlayer();
+    public static final TrackScheduler trackScheduler = new TrackScheduler(player);
     public static TextChannel latestChan;
     public static boolean isAudioHandlerSet = false;
     static JDA client;
@@ -30,42 +30,49 @@ public class Main {
                 .build();
 
         client.updateCommands().addCommands(
-                Commands.slash("join","no"),
+                Commands.slash("join","dolacza na kanal"),
 
-                Commands.slash("leave", "e"),
+                Commands.slash("leave", "opuszcza kanal"),
 
-                Commands.slash("play", "e")
-                        .addOption(OptionType.STRING, "url", "jasiu podaj biciora", true),
+                Commands.slash("play", ".")
+                        .addOption(OptionType.STRING, "url", "adres URL do filmu", true),
 
                 Commands.slash("pause", "zatrzymuje albo wlacza muzyke lol"),
 
-                Commands.slash("loop", "jesli nie wiesz co to robi to jestes gupi lolololol"),
+                Commands.slash("loop", "zapetla "),
 
-                Commands.slash("skip", "sracz"),
+                Commands.slash("skip", "pomija utwor"),
 
-                Commands.slash("np", "kupsko"),
+                Commands.slash("np", "wyswietla grany utwor"),
 
-                Commands.slash("queue", "tomasz to furas")
+                Commands.slash("queue", "wyswietla kolejke")
                         .addOption(OptionType.INTEGER, "ilosc", "ilosc elementow widocznych na raz", false),
 
-                Commands.slash("stop", "wylacza muzyke i usuwa kolejke xdxdxdxdx bob"),
+                Commands.slash("stop", "wylacza muzyke i usuwa kolejke"),
 
-                Commands.slash("search", "quandale sus the dingle")
-                        .addOption(OptionType.STRING, "query", "ok", true)
+                Commands.slash("search", "wyszukuje utworow na youtubie")
+                        .addOption(OptionType.STRING, "query", "co wyszukac", true)
                         .addOption(OptionType.INTEGER, "page", "strona wyszukiwania", false),
 
                 Commands.slash("jump", "przeskakuje do miejsca w kolejce uwuajac poprzednie rzeczy")
-                        .addOption(OptionType.INTEGER, "position","kupa",true),
+                        .addOption(OptionType.INTEGER, "position","pozycja na ktora przeskoczyc",true),
 
                 Commands.slash("sp", "sp")
                         .addOption(OptionType.STRING, "query", "co wyszukac", true),
 
                 Commands.slash("rm", "usuwa z kolejki")
-                        .addOption(OptionType.INTEGER, "pos", "position", true)
+                        .addOption(OptionType.INTEGER, "pos", "pozycja do usuniecia z kolejki", true),
+
+                Commands.slash("copy", "kopiuje utwor na koniec kolejki")
+                        .addOption(OptionType.INTEGER, "pos", "postion", true),
+
+                Commands.slash("seek", "przeskakuje na dany czas w sekundach w granym utworze")
+                        .addOption(OptionType.INTEGER, "t", "czas w sekundach na jaki przejsc", true)
         ).queue();
 
         System.out.println("Registering command handlers...");
 
+        Copy copyHandler = new Copy();
         Join joinHandler = new Join();
         Jump jumpHandler = new Jump();
         Leave leaveHandler = new Leave();
@@ -77,9 +84,28 @@ public class Main {
         RemoveAt rmHandler = new RemoveAt();
         Search searchHandler = new Search();
         SearchPlay spHandler = new SearchPlay();
+        Seek seekHandler = new Seek();
         Skip skipHandler = new Skip();
         Stop stopHandler = new Stop();
-        client.addEventListener(joinHandler, jumpHandler, leaveHandler, loopHandler, npHandler, pauseHandler, playHandler, queueHandler, rmHandler, searchHandler, spHandler, skipHandler, stopHandler);
 
+        client.addEventListener(
+                copyHandler,
+                joinHandler,
+                jumpHandler,
+                leaveHandler,
+                loopHandler,
+                npHandler,
+                pauseHandler,
+                playHandler,
+                queueHandler,
+                rmHandler,
+                searchHandler,
+                spHandler,
+                seekHandler,
+                skipHandler,
+                stopHandler
+        );
+
+        System.out.println("Command handlers registered!");
     }
 }

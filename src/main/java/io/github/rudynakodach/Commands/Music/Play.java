@@ -41,7 +41,7 @@ public class Play extends ListenerAdapter {
                     for (AudioTrack track : playlist.getTracks()) {
                         trackScheduler.queue(track);
                     }
-                    event.getInteraction().reply("Dodano " + playlist.getTracks().size() + " elementów do kolejki.");
+                    event.getInteraction().reply("Dodano " + playlist.getTracks().size() + " elementów do kolejki.").queue();
                 }
 
                 @Override
