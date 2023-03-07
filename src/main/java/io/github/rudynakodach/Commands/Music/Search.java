@@ -25,7 +25,7 @@ public class Search extends ListenerAdapter {
             }
             String query = event.getInteraction().getOption("query").getAsString();
             EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setAuthor("JSracz")
+                    .setAuthor("JMP")
                     .setTitle(query)
                     .setColor(new Color(230, 25, 216));
             playerManager.loadItem("ytsearch: " + query, new FunctionalResultHandler(null, playlist -> {
@@ -34,12 +34,18 @@ public class Search extends ListenerAdapter {
                     page = Objects.requireNonNull(event.getInteraction().getOption("page")).getAsInt() - 1;
                 }
                 HashMap<String, String> songMap = new HashMap<>();
-                for (int i = page * 5; i < page * 5 + 5; i++) {
+
+                int amt = page*5+5;
+                boolean isNextButtonDisabled = false;
+                if(amt > playlist.getTracks().size()) {
+                    amt = playlist.getTracks().size() - 1;
+                    isNextButtonDisabled = true;
+                }
+                for (int i = page * 5; i < amt; i++) {
                     AudioTrack e = playlist.getTracks().get(i);
                     songMap.put(String.valueOf(i+1), e.getIdentifier());
                     embedBuilder.addField("`[" + (i+1) + "]` " + e.getInfo().title, e.getInfo().author + " `" + trackScheduler.formatDuration(e) + "`", false);
                 }
-
 
                 Collection<Button> buttons = new ArrayList<>();
                 for (Map.Entry<String, String> entry : songMap.entrySet()) {
@@ -57,12 +63,15 @@ public class Search extends ListenerAdapter {
                 }
                 pageButtons.add(pgBack);
                 Button pgFwd = Button.secondary("YTSEARCH: " + query + " | PAGE: " + (page+1), Emoji.fromUnicode("U+27A1"));
+                if(isNextButtonDisabled) {
+                    pgFwd = pgFwd.asDisabled();
+                }
                 pageButtons.add(pgFwd);
 
                 Button removeMessage = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
                 pageButtons.add(removeMessage);
 
-                embedBuilder.setFooter("Strona " + page);
+                embedBuilder.setFooter("Strona " + (page+1));
                 event.getInteraction().replyEmbeds(embedBuilder.build()).addActionRow(
                         buttons
                 ).addActionRow(

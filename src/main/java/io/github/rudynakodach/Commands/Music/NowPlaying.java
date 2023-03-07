@@ -23,7 +23,7 @@ public class NowPlaying extends ListenerAdapter {
 
                 EmbedBuilder eb = new EmbedBuilder()
                         .setColor(new Color(202, 23, 255))
-                        .setAuthor("JSracz")
+                        .setAuthor("JMP")
                         .addField(player.getPlayingTrack().getInfo().title, durationString, false);
                 if (nextSong != null) {
                     eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);

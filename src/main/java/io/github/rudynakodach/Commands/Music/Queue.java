@@ -24,7 +24,7 @@ public class Queue extends ListenerAdapter {
             }
             Collection<AudioTrack> currentQueue = trackScheduler.getQueue(amt);
             EmbedBuilder eb = new EmbedBuilder()
-                    .setAuthor("JSracz")
+                    .setAuthor("JMP")
                     .setColor(new Color(66, 135, 245))
                     .setFooter("Wyświetlanie " + currentQueue.size() + " z " + trackScheduler.getQueue().length + " elementów.");
 

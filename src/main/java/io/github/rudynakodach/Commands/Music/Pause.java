@@ -13,14 +13,14 @@ public class Pause extends ListenerAdapter {
             trackScheduler.togglePaused();
             if(player.isPaused()) {
                 EmbedBuilder eb = new EmbedBuilder();
-                eb.setTitle("JSracz");
+                eb.setTitle("JMP");
                 eb.addField(":pause_button:","DEBUG", false);
                 eb.addField("isPaused", String.valueOf(player.isPaused()), false);
                 eb.setColor(new Color(217, 124, 24));
                 event.getInteraction().replyEmbeds(eb.build()).queue();
             } else {
                 EmbedBuilder eb = new EmbedBuilder();
-                eb.setTitle("JSracz");
+                eb.setTitle("JMP");
                 eb.addField(":arrow_forward:","DEBUG", false);
                 eb.addField("isPaused", String.valueOf(player.isPaused()), false);
                 eb.setColor(new Color(128, 204, 29));

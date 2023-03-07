@@ -73,7 +73,15 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             playerManager.loadItem("ytsearch: " + query, new FunctionalResultHandler(null, playlist -> {
 
                 HashMap<String, String> songMap = new HashMap<>();
-                for (int i = page * 5; i < page * 5 + 5; i++) {
+
+                int amt = page*5+5;
+                boolean isNextButtonDisabled = false;
+                if(amt > playlist.getTracks().size()) {
+                    amt = playlist.getTracks().size() - 1;
+                    isNextButtonDisabled = true;
+                }
+
+                for (int i = page * 5; i < amt; i++) {
                     AudioTrack e = playlist.getTracks().get(i);
                     songMap.put(String.valueOf(i+1), e.getIdentifier());
                     eb.addField("`[" + (i+1) + "]` " + e.getInfo().title, e.getInfo().author + " `" + trackScheduler.formatDuration(e) + "`", false);
@@ -97,6 +105,9 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 }
                 pageButtons.add(pgBack);
                 Button pgFwd = Button.secondary("YTSEARCH: " + query + " | PAGE: " + (page+1), Emoji.fromUnicode("U+27A1"));
+                if(isNextButtonDisabled) {
+                    pgFwd = pgFwd.asDisabled();
+                }
                 pageButtons.add(pgFwd);
 
                 Button removeMessage = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
@@ -105,7 +116,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 components.add(ActionRow.of(buttons));
                 components.add(ActionRow.of(pageButtons));
 
-                eb.setFooter("Strona " + page);
+                eb.setFooter("Strona " + (page+1));
                 event.getInteraction().editMessageEmbeds(eb.build())
                         .setComponents(components).queue();
             }, null, null));
