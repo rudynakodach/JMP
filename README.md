@@ -1,5 +1,5 @@
 # JSracz
-Discord Music Bot for my personal use containing literal shitposts.
+Discord Music Bot.
 
 # Usage
 In cmd, run this command:
