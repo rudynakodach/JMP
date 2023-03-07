@@ -43,7 +43,7 @@ public class Play extends ListenerAdapter {
 
                 @Override
                 public void noMatches() {
-                    event.getInteraction().reply("Moje murzyńskie moce nie znalazły takiego filmu").queue();
+                    event.getInteraction().reply("Nie znaleziono utworu.").queue();
                 }
 
                 @Override

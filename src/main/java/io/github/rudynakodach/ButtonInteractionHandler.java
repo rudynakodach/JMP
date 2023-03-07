@@ -50,7 +50,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
 
                 @Override
                 public void noMatches() {
-                    event.getInteraction().reply("Moje murzyńskie moce nie znalazły takiego filmu").queue();
+                    event.getInteraction().reply("Nie znaleziono utworu.").queue();
                 }
 
                 @Override
@@ -66,7 +66,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             int page = Integer.parseInt(searchData[1].split(":")[1].trim());
 
             EmbedBuilder eb = new EmbedBuilder()
-                    .setAuthor("JSracz")
+                    .setAuthor("JMP")
                     .setTitle(query)
                     .setColor(new Color(230, 25, 216));
 
