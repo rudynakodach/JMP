@@ -1,4 +1,4 @@
-# JSracz
+# JMP
 Discord Music Bot.
 
 # Usage
