@@ -16,7 +16,7 @@ public class Skip extends ListenerAdapter {
             }
             latestChan = event.getInteraction().getChannel().asTextChannel();
             event.getInteraction().reply("Pominięto `" + player.getPlayingTrack().getInfo().title + "`.").queue();
-            trackScheduler.nextTrack();
+            trackScheduler.nextTrack(false);
         }
     }
 }

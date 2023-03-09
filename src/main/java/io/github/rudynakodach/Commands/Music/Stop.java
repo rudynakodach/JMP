@@ -18,7 +18,7 @@ public class Stop extends ListenerAdapter {
             if(trackScheduler.isQueueLooped)  {
                 trackScheduler.toggleQueueLoop(new ArrayList<>());
             }
-            event.getInteraction().reply("Zatrzymano.").queue();
+            event.getInteraction().reply("Zatrzymano odtwarzanie i usunięto kolejke.").queue();
         }
     }
 }

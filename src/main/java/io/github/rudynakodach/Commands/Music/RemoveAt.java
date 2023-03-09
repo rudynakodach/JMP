@@ -4,8 +4,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,6 +15,7 @@ public class RemoveAt extends ListenerAdapter {
             if(event.getMember().getVoiceState().getChannel() == null) {
                 return;
             }
+            latestChan = event.getInteraction().getChannel().asTextChannel();
             int pos = Objects.requireNonNull(event.getInteraction().getOption("pos")).getAsInt() - 1;
             AudioTrack[] oldQ = trackScheduler.getQueue();
             AudioTrack[] newQ = new AudioTrack[oldQ.length - 1];

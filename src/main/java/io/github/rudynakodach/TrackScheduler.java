@@ -35,7 +35,7 @@ public class TrackScheduler extends AudioEventAdapter {
             queue.offer(track);
         } else {
             queue.offer(track);
-            nextTrack();
+            nextTrack(false);
         }
     }
 
@@ -56,12 +56,12 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
 
-    public void nextTrack() {
-        // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
-        // giving null to startTrack, which is a valid argument and will simply stop the player.
+    public void nextTrack(boolean suppressMessage) {
         if(queue.size() > 0) {
             AudioTrack nextTrack = queue.poll();
-            latestChan.sendMessage("Zapodany bicior: `" + nextTrack.getInfo().title + "`").queue();
+            if(!suppressMessage) {
+                latestChan.sendMessage("Zapodany bicior: `" + nextTrack.getInfo().title + "`").queue();
+            }
             player.playTrack(nextTrack);
         } else {
             if(!isQueueLooped || !isLooped) {
@@ -82,9 +82,9 @@ public class TrackScheduler extends AudioEventAdapter {
                 }
             }
         }
-        // Only start the next track if the end reason is suitable for it (FINISHED or LOAD_FAILED)
+
         if (endReason.mayStartNext) {
-            nextTrack();
+            nextTrack(false);
         }
     }
 
@@ -107,7 +107,7 @@ public class TrackScheduler extends AudioEventAdapter {
         queue.clear();
         queue.addAll(newQueue);
         if(playNext) {
-            nextTrack();
+            nextTrack(true);
         }
     }
 

@@ -19,7 +19,7 @@ public class LoopQueue extends ListenerAdapter {
                 trackScheduler.toggleQueueLoop(queueToLoop);
                 event.getInteraction().reply("Zapętlono `" + queueToLoop.size() + "` elementów.").queue();
             } else {
-                event.getInteraction().reply("Usunięto pętle kolejki `[" + trackScheduler.queueToLoop.size() + "elem.]`").queue();
+                event.getInteraction().reply("Usunięto pętle kolejki `[" + trackScheduler.queueToLoop.size() + " elem.]`").queue();
                 trackScheduler.toggleQueueLoop(new ArrayList<>());
             }
         }

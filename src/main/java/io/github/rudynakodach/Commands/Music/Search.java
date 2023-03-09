@@ -23,9 +23,9 @@ public class Search extends ListenerAdapter {
             latestChan = event.getInteraction().getChannel().asTextChannel();
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());
-            if(!isAudioHandlerSet) {
-                event.getGuild().getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
-                isAudioHandlerSet = !isAudioHandlerSet;
+            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
+                Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+                audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }
             String query = event.getInteraction().getOption("query").getAsString();
             EmbedBuilder embedBuilder = new EmbedBuilder()

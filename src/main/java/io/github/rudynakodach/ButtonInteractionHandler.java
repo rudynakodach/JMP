@@ -27,9 +27,9 @@ public class ButtonInteractionHandler extends ListenerAdapter {
         }
 
         if (event.getComponentId().startsWith("YTPLAY")) {
-            if(!isAudioHandlerSet) {
+            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
-                isAudioHandlerSet = !isAudioHandlerSet;
+                audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }
             String trackId = event.getComponentId().split(":")[1].trim();
             playerManager.loadItem(trackId, new AudioLoadResultHandler() {
@@ -38,7 +38,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                     event.getInteraction().reply("Załadowany bicior: `" + track.getInfo().title + "`").queue();
                     trackScheduler.queue(track);
                     if(player.getPlayingTrack() == null) {
-                        trackScheduler.nextTrack();
+                        trackScheduler.nextTrack(true);
                     }
                     if(trackScheduler.isQueueLooped) {
                         trackScheduler.queueToLoop.add(track);
@@ -141,7 +141,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
 
         else if(event.getComponentId().startsWith("SKIP")) {
             latestChan = event.getInteraction().getChannel().asTextChannel();
-            trackScheduler.nextTrack();
+            trackScheduler.nextTrack(true);
             if(player.getPlayingTrack() != null) {
                 AudioTrack track = player.getPlayingTrack();
 

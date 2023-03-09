@@ -15,11 +15,12 @@ public class Join extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("join")) {
             if(event.getMember().getVoiceState().getChannel() == null) {
+                event.getInteraction().reply("Musisz być połączony z kanałem głosowym!").queue();
                 return;
             }
-            if(!isAudioHandlerSet) {
+            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
-                isAudioHandlerSet = !isAudioHandlerSet;
+                audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }
 
             latestChan = event.getInteraction().getChannel().asTextChannel();

@@ -5,11 +5,14 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import io.github.rudynakodach.Commands.Music.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+
+import java.util.HashMap;
 
 public class Main {
     public static AudioManager audioManager;
@@ -17,7 +20,8 @@ public class Main {
     public static final AudioPlayer player = playerManager.createPlayer();
     public static final TrackScheduler trackScheduler = new TrackScheduler(player);
     public static TextChannel latestChan;
-    public static boolean isAudioHandlerSet = false;
+
+    public static HashMap<String, Boolean> audioHandlerSetMap = new HashMap<>();
     public static JDA client;
     public static void main(String[] args) {
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -28,6 +32,11 @@ public class Main {
                 .enableCache(CacheFlag.VOICE_STATE)
                 .addEventListeners(new ButtonInteractionHandler())
                 .build();
+
+        for (Guild g : client.getGuilds()) {
+            String guildId = g.getId();
+            audioHandlerSetMap.put(guildId, false);
+        }
 
         client.updateCommands().addCommands(
                 Commands.slash("join","dolacza na kanal"),
@@ -79,6 +88,10 @@ public class Main {
 
         System.out.println("Registering command handlers...");
 
+        //guild join handler
+        GuildJoinHandler guildJoinHandler = new GuildJoinHandler();
+
+        //command handlers
         Copy copyHandler = new Copy();
         Join joinHandler = new Join();
         Jump jumpHandler = new Jump();
@@ -99,6 +112,7 @@ public class Main {
         Volume volumeHandler = new Volume();
 
         client.addEventListener(
+                guildJoinHandler,
                 copyHandler,
                 joinHandler,
                 jumpHandler,
