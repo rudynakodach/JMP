@@ -1,6 +1,10 @@
 # JMP
-Discord Music Bot.
+Advanced Discord music bot. *why did I even make it*
+
 Made for the boys and for personal use, although you can still use it if you know polish.
+
+# Requirements
+- Java 17.0.1 LTS 
 
 # Usage
 In cmd, run this command:
