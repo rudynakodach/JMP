@@ -34,6 +34,8 @@ where TOKEN is your bot's token.
 - ##### `/speak`: sends a request to become a speaker in a stage channel
 - ##### `/stop`: stops playing and removes the queue
 - ##### `/volume [volume]`: changes the volume to *volume* in range 0-1000
+### Miscellaneous
+- #### `/bugreport`: displays a link to this repo's issues section
 
 
 
