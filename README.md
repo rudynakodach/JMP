@@ -3,8 +3,11 @@ Advanced Discord music bot. *why did I even make it*
 
 Made for the boys and for personal use, although you can still use it if you know polish.
 
+Able to play videos from YouTube and locally saved files *(by providing the filepath in `/play`)*.
+
 # Requirements
 - Java 17.0.1 LTS 
+- **All Privileged Gateway Intents have to be enabled on your Discord Bot Application**
 
 # Usage
 In cmd, run this command:

@@ -2,6 +2,7 @@ package io.github.rudynakodach;
 
 import com.sedmelluq.discord.lavaplayer.player.*;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import io.github.rudynakodach.Commands.Misc.*;
 import io.github.rudynakodach.Commands.Music.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -83,7 +84,12 @@ public class Main {
 
                 Commands.slash("speak", "."),
 
-                Commands.slash("loopqueue", ".")
+                Commands.slash("loopqueue", "."),
+
+                // misc commands
+
+                Commands.slash("bugreport", "report a bug")
+
         ).queue();
 
         System.out.println("Registering command handlers...");
@@ -91,7 +97,7 @@ public class Main {
         //guild join handler
         GuildJoinHandler guildJoinHandler = new GuildJoinHandler();
 
-        //command handlers
+        //music command handlers
         Copy copyHandler = new Copy();
         Join joinHandler = new Join();
         Jump jumpHandler = new Jump();
@@ -111,8 +117,12 @@ public class Main {
         Stop stopHandler = new Stop();
         Volume volumeHandler = new Volume();
 
+        //miscellaneous command handlers
+        BugReport bugReportHandler = new BugReport();
+
         client.addEventListener(
                 guildJoinHandler,
+                //music handlers
                 copyHandler,
                 joinHandler,
                 jumpHandler,
@@ -130,7 +140,10 @@ public class Main {
                 skipHandler,
                 speakHandler,
                 stopHandler,
-                volumeHandler
+                volumeHandler,
+
+                // misc handlers
+                bugReportHandler
         );
 
         System.out.println("Command handlers registered!");
