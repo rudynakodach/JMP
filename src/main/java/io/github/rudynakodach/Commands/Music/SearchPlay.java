@@ -3,6 +3,7 @@ package io.github.rudynakodach.Commands.Music;
 import com.sedmelluq.discord.lavaplayer.player.FunctionalResultHandler;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import io.github.rudynakodach.AudioPlayerSendHandler;
+import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -13,6 +14,9 @@ public class SearchPlay extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("sp")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());
             if(!isAudioHandlerSet) {
@@ -25,6 +29,9 @@ public class SearchPlay extends ListenerAdapter {
                 event.getInteraction().reply("DJ załadował biciora: `" + e.getInfo().title + "`").queue();
                 if(player.getPlayingTrack() == null) {
                     trackScheduler.nextTrack();
+                }
+                if(trackScheduler.isQueueLooped) {
+                    trackScheduler.queueToLoop.add(e);
                 }
             }, null, null));
         }

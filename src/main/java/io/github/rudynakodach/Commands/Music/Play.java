@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import io.github.rudynakodach.AudioPlayerSendHandler;
+import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -15,6 +16,9 @@ import static io.github.rudynakodach.Main.*;
 public class Play extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("play")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             latestChan = event.getInteraction().getChannel().asTextChannel();
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());

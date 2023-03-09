@@ -18,7 +18,7 @@ public class Main {
     public static final TrackScheduler trackScheduler = new TrackScheduler(player);
     public static TextChannel latestChan;
     public static boolean isAudioHandlerSet = false;
-    static JDA client;
+    public static JDA client;
     public static void main(String[] args) {
         AudioSourceManagers.registerRemoteSources(playerManager);
         AudioSourceManagers.registerLocalSource(playerManager);
@@ -67,7 +67,14 @@ public class Main {
                         .addOption(OptionType.INTEGER, "pos", "postion", true),
 
                 Commands.slash("seek", "przeskakuje na dany czas w sekundach w granym utworze")
-                        .addOption(OptionType.INTEGER, "t", "czas w sekundach na jaki przejsc", true)
+                        .addOption(OptionType.INTEGER, "t", "czas w sekundach na jaki przejsc", true),
+
+                Commands.slash("volume", "zmienia glosnosc")
+                        .addOption(OptionType.INTEGER, "volume", "nowa glosnosc w zakresie 0-1000", true),
+
+                Commands.slash("speak", "."),
+
+                Commands.slash("loopqueue", ".")
         ).queue();
 
         System.out.println("Registering command handlers...");
@@ -77,6 +84,7 @@ public class Main {
         Jump jumpHandler = new Jump();
         Leave leaveHandler = new Leave();
         Loop loopHandler = new Loop();
+        LoopQueue lqHandler = new LoopQueue();
         NowPlaying npHandler = new NowPlaying();
         Pause pauseHandler = new Pause();
         Play playHandler = new Play();
@@ -86,7 +94,9 @@ public class Main {
         SearchPlay spHandler = new SearchPlay();
         Seek seekHandler = new Seek();
         Skip skipHandler = new Skip();
+        Speak speakHandler = new Speak();
         Stop stopHandler = new Stop();
+        Volume volumeHandler = new Volume();
 
         client.addEventListener(
                 copyHandler,
@@ -94,6 +104,7 @@ public class Main {
                 jumpHandler,
                 leaveHandler,
                 loopHandler,
+                lqHandler,
                 npHandler,
                 pauseHandler,
                 playHandler,
@@ -103,7 +114,9 @@ public class Main {
                 spHandler,
                 seekHandler,
                 skipHandler,
-                stopHandler
+                speakHandler,
+                stopHandler,
+                volumeHandler
         );
 
         System.out.println("Command handlers registered!");

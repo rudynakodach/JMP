@@ -1,6 +1,7 @@
 package io.github.rudynakodach.Commands.Music;
 
 import io.github.rudynakodach.AudioPlayerSendHandler;
+import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -13,13 +14,18 @@ public class Join extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("join")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             if(!isAudioHandlerSet) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
                 isAudioHandlerSet = !isAudioHandlerSet;
             }
+
             latestChan = event.getInteraction().getChannel().asTextChannel();
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
-            audioManager.openAudioConnection(Objects.requireNonNull(event.getMember()).getVoiceState().getChannel().asVoiceChannel());
+            audioManager.openAudioConnection(Objects.requireNonNull(event.getMember()).getVoiceState().getChannel());
+
             event.getInteraction().reply("Dołączono na `" + event.getMember().getVoiceState().getChannel().getName() + "` :thumbsup:").queue();
         }
     }

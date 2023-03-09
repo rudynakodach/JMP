@@ -9,6 +9,9 @@ public class Leave extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("leave")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             Main.latestChan = event.getInteraction().getChannel().asTextChannel();
             Main.audioManager.closeAudioConnection();
             Main.player.stopTrack();

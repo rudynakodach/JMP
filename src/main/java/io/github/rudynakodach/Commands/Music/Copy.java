@@ -13,6 +13,9 @@ public class Copy extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("copy")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             int pos = Objects.requireNonNull(event.getInteraction().getOption("pos")).getAsInt() - 1;
             AudioTrack elementToCopy = Arrays.stream(trackScheduler.getQueue()).toList().get(pos);
             trackScheduler.queue(elementToCopy.makeClone());

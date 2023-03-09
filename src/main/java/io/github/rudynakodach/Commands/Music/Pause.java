@@ -9,8 +9,11 @@ import static io.github.rudynakodach.Main.*;
 public class Pause extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("pause")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             latestChan = event.getInteraction().getChannel().asTextChannel();
-            trackScheduler.togglePaused();
+            trackScheduler.togglePause();
             if(player.isPaused()) {
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.setTitle("JMP");

@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.FunctionalResultHandler;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import io.github.rudynakodach.AudioPlayerSendHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,6 +17,9 @@ public class Search extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("search")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             latestChan = event.getInteraction().getChannel().asTextChannel();
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());

@@ -10,6 +10,9 @@ public class Loop extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("loop")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
             latestChan = event.getInteraction().getChannel().asTextChannel();
             trackScheduler.toggleLoop();
             if(trackScheduler.isLooped) {

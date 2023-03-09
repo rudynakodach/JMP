@@ -15,28 +15,33 @@ import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 import static io.github.rudynakodach.Main.*;
 public class ButtonInteractionHandler extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().startsWith("YTPLAY: ")) {
+        if(event.getMember().getVoiceState().getChannel() == null) {
+            return;
+        }
+
+        if (event.getComponentId().startsWith("YTPLAY")) {
             if(!isAudioHandlerSet) {
-                event.getGuild().getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+                Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
                 isAudioHandlerSet = !isAudioHandlerSet;
             }
             String trackId = event.getComponentId().split(":")[1].trim();
             playerManager.loadItem(trackId, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
-                    event.getInteraction().reply("Załadowany bicior: " + track.getInfo().title).queue();
+                    event.getInteraction().reply("Załadowany bicior: `" + track.getInfo().title + "`").queue();
                     trackScheduler.queue(track);
                     if(player.getPlayingTrack() == null) {
                         trackScheduler.nextTrack();
+                    }
+                    if(trackScheduler.isQueueLooped) {
+                        trackScheduler.queueToLoop.add(track);
                     }
                 }
 
@@ -44,6 +49,9 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 public void playlistLoaded(AudioPlaylist playlist) {
                     for (AudioTrack track : playlist.getTracks()) {
                         trackScheduler.queue(track);
+                    }
+                    if(trackScheduler.isQueueLooped) {
+                        trackScheduler.queueToLoop.addAll(playlist.getTracks());
                     }
                     event.getInteraction().reply("Dodano " + playlist.getTracks().size() + " elementów do kolejki.").queue();
                 }
@@ -126,9 +134,118 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             String[] dataSplit = event.getComponentId().split("\\|");
             String authorName = dataSplit[1].split(":")[1].trim();
 
-            if(authorName.equals(event.getUser().getName()) || event.getMember().hasPermission(Permission.ADMINISTRATOR) || event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            if(authorName.equals(event.getUser().getName()) || Objects.requireNonNull(event.getMember()).hasPermission(Permission.ADMINISTRATOR) || event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                 event.getMessage().delete().queue();
             }
+        }
+
+        else if(event.getComponentId().startsWith("SKIP")) {
+            latestChan = event.getInteraction().getChannel().asTextChannel();
+            trackScheduler.nextTrack();
+            if(player.getPlayingTrack() != null) {
+                AudioTrack track = player.getPlayingTrack();
+
+                String durationString = trackScheduler.formatProgress(track);
+
+                AudioTrack nextSong = trackScheduler.nextElement();
+
+                Button replayButton = Button.primary("REPLAY | ID: " + player.getPlayingTrack().getInfo().identifier, Emoji.fromUnicode("U+23EE"));
+                Button stopButton = Button.primary("STOP", Emoji.fromUnicode("U+23F9"));
+                Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
+                Button skipButton;
+                Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
+                if(trackScheduler.getQueue().length > 0) {
+                    skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
+                } else {
+                    skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
+                }
+                EmbedBuilder eb = new EmbedBuilder()
+                        .setColor(new Color(202, 23, 255))
+                        .setAuthor("JMP")
+                        .addField(player.getPlayingTrack().getInfo().title, durationString, false);
+                if (nextSong != null) {
+                    eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
+                } else {
+                    eb.addField("Następne", "`Brak`", false);
+                }
+                event.getInteraction().editMessageEmbeds(eb.build())
+                        .setActionRow(
+                                replayButton,
+                                stopButton,
+                                pauseActionButton,
+                                skipButton,
+                                removeButton
+                        ).queue();
+            }
+        }
+
+        else if(event.getComponentId().startsWith("STOP")) {
+            trackScheduler.clearQueue();
+            player.stopTrack();
+            event.deferEdit().queue();
+        }
+
+        else if(event.getComponentId().startsWith("TOGGLEPAUSE")) {
+            trackScheduler.togglePause();
+            AudioTrack track = player.getPlayingTrack();
+
+            String durationString = trackScheduler.formatProgress(track);
+
+            AudioTrack nextSong = trackScheduler.nextElement();
+
+            Button replayButton = Button.primary("REPLAY | ID: " + player.getPlayingTrack().getInfo().identifier, Emoji.fromUnicode("U+23EE"));
+            Button stopButton = Button.primary("STOP", Emoji.fromUnicode("U+23F9"));
+            Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
+            Button skipButton;
+            Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
+            if(trackScheduler.getQueue().length > 0) {
+                skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
+            } else {
+                skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
+            }
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setColor(new Color(202, 23, 255))
+                    .setAuthor("JMP")
+                    .addField(player.getPlayingTrack().getInfo().title, durationString, false);
+            if (nextSong != null) {
+                eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
+            } else {
+                eb.addField("Następne", "`Brak`", false);
+            }
+            event.getInteraction().editMessageEmbeds(eb.build())
+                    .setActionRow(
+                            replayButton,
+                            stopButton,
+                            pauseActionButton,
+                            skipButton,
+                            removeButton
+                    ).queue();
+        }
+
+        else if(event.getComponentId().startsWith("REPLAY")) {
+            String[] buttonData = event.getComponentId().split("\\|");
+            String songIdentifier = buttonData[1].trim().split(":")[1].trim();
+
+            playerManager.loadItem(songIdentifier, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack track) {
+                    player.playTrack(track);
+                    event.getInteraction().deferEdit().queue();
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist ignored) {}
+
+                @Override
+                public void noMatches() {
+                    event.getInteraction().reply("Nie znaleziono utworu.").queue();
+                }
+
+                @Override
+                public void loadFailed(FriendlyException exception) {
+                    event.getInteraction().reply("Nie udało się załadować utworu.").queue();
+                }
+            });
         }
     }
 }

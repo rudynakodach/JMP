@@ -15,7 +15,9 @@ import static io.github.rudynakodach.Main.*;
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue;
+    public Collection<AudioTrack> queueToLoop = new ArrayList<>();
     public boolean isLooped = false;
+    public boolean isQueueLooped = false;
     /**
      * @param player The audio player this scheduler uses
      */
@@ -37,17 +39,23 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void togglePaused() {
+    public void togglePause() {
         player.setPaused(!player.isPaused());
     }
 
     public void toggleLoop() {
         isLooped = !isLooped;
     }
+    public void toggleQueueLoop(Collection<AudioTrack> q) {
+        isQueueLooped = !isQueueLooped;
+        if(!isQueueLooped) {
+            queueToLoop = new ArrayList<>();
+        } else {
+            queueToLoop = q;
+        }
+    }
 
-    /**
-     * Start the next track, stopping the current one if it is playing.
-     */
+
     public void nextTrack() {
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
@@ -56,7 +64,9 @@ public class TrackScheduler extends AudioEventAdapter {
             latestChan.sendMessage("Zapodany bicior: `" + nextTrack.getInfo().title + "`").queue();
             player.playTrack(nextTrack);
         } else {
-            latestChan.sendMessage("Koniec kolejki.").queue();
+            if(!isQueueLooped || !isLooped) {
+                latestChan.sendMessage("Koniec kolejki.").queue();
+            }
         }
     }
 
@@ -65,6 +75,12 @@ public class TrackScheduler extends AudioEventAdapter {
         if(isLooped && endReason.mayStartNext) {
             player.playTrack(track.makeClone());
             return;
+        } else if (isQueueLooped) {
+            if(queue.size() == 0) {
+                for (AudioTrack e : queueToLoop) {
+                    queue(e.makeClone());
+                }
+            }
         }
         // Only start the next track if the end reason is suitable for it (FINISHED or LOAD_FAILED)
         if (endReason.mayStartNext) {
@@ -112,6 +128,7 @@ public class TrackScheduler extends AudioEventAdapter {
         String formattedDuration = String.format("%d:%02d", duration / 60, duration % 60);
         return formattedPosition + "/" + formattedDuration;
     }
+
     public String formatDuration(AudioTrack e) {
         long duration = e.getInfo().length / 1000;
         long hours = duration / 3600;
@@ -126,5 +143,9 @@ public class TrackScheduler extends AudioEventAdapter {
         formattedDuration += String.format("%02d:%02d", minutes, seconds);
 
         return formattedDuration;
+    }
+
+    public boolean getPausedStatus() {
+        return player.isPaused();
     }
 }

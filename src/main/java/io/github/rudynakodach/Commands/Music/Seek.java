@@ -1,5 +1,6 @@
 package io.github.rudynakodach.Commands.Music;
 
+import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -8,10 +9,15 @@ public class Seek extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("seek")) {
+            if(event.getMember().getVoiceState().getChannel() == null) {
+                return;
+            }
+
             if(player.getPlayingTrack() == null) {
                 event.getInteraction().reply("Nie wykryto utworu.").queue();
                 return;
             }
+
             int time = event.getInteraction().getOption("t").getAsInt();
             player.getPlayingTrack().setPosition(time * 1000L);
 
