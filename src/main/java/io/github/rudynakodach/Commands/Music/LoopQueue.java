@@ -15,7 +15,7 @@ public class LoopQueue extends ListenerAdapter {
         if(event.getName().equalsIgnoreCase("loopqueue")) {
             if (!trackScheduler.isQueueLooped) {
                 Collection<AudioTrack> queueToLoop = new java.util.ArrayList<>(List.of(player.getPlayingTrack().makeClone()));
-                queueToLoop.addAll(List.of(trackScheduler.getQueue()));
+                queueToLoop.addAll(trackScheduler.getQueue());
                 trackScheduler.toggleQueueLoop(queueToLoop);
                 event.getInteraction().reply("Zapętlono `" + queueToLoop.size() + "` elementów.").queue();
             } else {

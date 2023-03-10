@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -59,7 +61,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public void nextTrack(boolean suppressMessage) {
         if(queue.size() > 0) {
             AudioTrack nextTrack = queue.poll();
-            if(!suppressMessage) {
+            if(!suppressMessage || !isLooped) {
                 latestChan.sendMessage("Zapodany bicior: `" + nextTrack.getInfo().title + "`").queue();
             }
             player.playTrack(nextTrack);
@@ -99,8 +101,13 @@ public class TrackScheduler extends AudioEventAdapter {
         }
         return e;
     }
-    public AudioTrack[] getQueue() {
-        return queue.toArray(new AudioTrack[0]);
+    public Collection<AudioTrack> getQueue() {
+        Collection<AudioTrack> e = new ArrayList<>();
+        Object[] queueArr = queue.toArray();
+        for (int i = 0; i < queueArr.length - 1; i++) {
+            e.add((AudioTrack)queueArr[i]);
+        }
+        return e;
     }
 
     public void replaceQueue(Collection<AudioTrack> newQueue, boolean playNext) {
@@ -147,5 +154,15 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public boolean getPausedStatus() {
         return player.isPaused();
+    }
+
+    public void shufflePlaylist(boolean includeCurrentTrack) {
+        List<AudioTrack> oldPlaylist = new ArrayList<>();
+        if(includeCurrentTrack) {
+            oldPlaylist.add(player.getPlayingTrack().makeClone());
+        }
+        oldPlaylist.addAll(getQueue());
+        Collections.shuffle(oldPlaylist);
+        replaceQueue(oldPlaylist, false);
     }
 }

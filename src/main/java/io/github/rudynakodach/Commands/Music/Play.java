@@ -5,7 +5,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import io.github.rudynakodach.AudioPlayerSendHandler;
-import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -23,7 +22,10 @@ public class Play extends ListenerAdapter {
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());
 
-            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
+            if(!audioHandlerSetMap.containsKey(event.getGuild().getId())) {
+                Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+                audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
+            } else if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
                 audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }

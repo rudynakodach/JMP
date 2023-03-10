@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import static io.github.rudynakodach.Main.*;
@@ -17,7 +16,7 @@ public class Copy extends ListenerAdapter {
                 return;
             }
             int pos = Objects.requireNonNull(event.getInteraction().getOption("pos")).getAsInt() - 1;
-            AudioTrack elementToCopy = Arrays.stream(trackScheduler.getQueue()).toList().get(pos);
+            AudioTrack elementToCopy = trackScheduler.getQueue().stream().toList().get(pos);
             trackScheduler.queue(elementToCopy.makeClone());
             event.getInteraction().reply("Skopiowano `" + elementToCopy.getInfo().title + "` na koniec kolejki.").queue();
         }

@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -18,18 +19,21 @@ public class Queue extends ListenerAdapter {
                 return;
             }
             latestChan = event.getInteraction().getChannel().asTextChannel();
+
             int amt = 5;
             if (event.getInteraction().getOption("ilosc") != null) {
                 amt = Objects.requireNonNull(event.getInteraction().getOption("ilosc")).getAsInt();
             }
-            if(amt > trackScheduler.getQueue().length) {
-                amt = trackScheduler.getQueue().length;
+            if(amt > trackScheduler.getQueue().size()) {
+                amt = trackScheduler.getQueue().size();
             }
             Collection<AudioTrack> currentQueue = trackScheduler.getQueue(amt);
             EmbedBuilder eb = new EmbedBuilder()
                     .setAuthor("JMP")
+                    .setTimestamp(Instant.now())
+                    .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
                     .setColor(new Color(66, 135, 245))
-                    .setFooter("Wyświetlanie " + currentQueue.size() + " z " + trackScheduler.getQueue().length + " elementów." + (trackScheduler.isQueueLooped ? "  |  KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ? "  |  UTWÓR ZAPĘTLONY" : ""));
+                    .setFooter("Wyświetlanie " + currentQueue.size() + " z " + trackScheduler.getQueue().size() + " elementów." + (trackScheduler.isQueueLooped ? "  |  KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ? "  |  UTWÓR ZAPĘTLONY" : ""));
 
             if(player.getPlayingTrack() != null) {
                 eb.setTitle("Teraz");

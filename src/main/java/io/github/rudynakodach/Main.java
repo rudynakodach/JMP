@@ -36,10 +36,13 @@ public class Main {
 
         for (Guild g : client.getGuilds()) {
             String guildId = g.getId();
+            System.out.println("Added guild " + guildId + ".");
             audioHandlerSetMap.put(guildId, false);
         }
 
         client.updateCommands().addCommands(
+
+                // music commands
                 Commands.slash("join","dolacza na kanal"),
 
                 Commands.slash("leave", "opuszcza kanal"),
@@ -79,15 +82,16 @@ public class Main {
                 Commands.slash("seek", "przeskakuje na dany czas w sekundach w granym utworze")
                         .addOption(OptionType.INTEGER, "t", "czas w sekundach na jaki przejsc", true),
 
+                Commands.slash("shuffle", "losowo zmienia liste"),
+
                 Commands.slash("volume", "zmienia glosnosc")
                         .addOption(OptionType.INTEGER, "volume", "nowa glosnosc w zakresie 0-1000", true),
 
                 Commands.slash("speak", "."),
 
-                Commands.slash("loopqueue", "."),
+                Commands.slash("loopqueue", "zapętla kolejke. kolejka zostanie dodana na nowo gdy nie ma żandych utworów w kolejce"),
 
                 // misc commands
-
                 Commands.slash("bugreport", "report a bug")
 
         ).queue();
@@ -96,6 +100,7 @@ public class Main {
 
         //guild join handler
         GuildJoinHandler guildJoinHandler = new GuildJoinHandler();
+        Credits creditsHandler = new Credits();
 
         //music command handlers
         Copy copyHandler = new Copy();
@@ -112,6 +117,7 @@ public class Main {
         Search searchHandler = new Search();
         SearchPlay spHandler = new SearchPlay();
         Seek seekHandler = new Seek();
+        Shuffle shuffleHandler = new Shuffle();
         Skip skipHandler = new Skip();
         Speak speakHandler = new Speak();
         Stop stopHandler = new Stop();
@@ -122,6 +128,8 @@ public class Main {
 
         client.addEventListener(
                 guildJoinHandler,
+                creditsHandler,
+
                 //music handlers
                 copyHandler,
                 joinHandler,
@@ -137,6 +145,7 @@ public class Main {
                 searchHandler,
                 spHandler,
                 seekHandler,
+                shuffleHandler,
                 skipHandler,
                 speakHandler,
                 stopHandler,

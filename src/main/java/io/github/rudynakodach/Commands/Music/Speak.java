@@ -4,8 +4,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import static io.github.rudynakodach.Main.client;
-import static io.github.rudynakodach.Main.latestChan;
+import static io.github.rudynakodach.Main.*;
 
 public class Speak extends ListenerAdapter {
     @Override

@@ -11,6 +11,7 @@ public class Volume extends ListenerAdapter {
             if(event.getMember().getVoiceState().getChannel() == null) {
                 return;
             }
+            latestChan = event.getInteraction().getChannel().asTextChannel();
             int newVolume = event.getInteraction().getOption("volume").getAsInt();
             int oldVolume = player.getVolume();
             player.setVolume(newVolume);

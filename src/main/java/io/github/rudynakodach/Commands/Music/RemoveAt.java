@@ -17,9 +17,9 @@ public class RemoveAt extends ListenerAdapter {
             }
             latestChan = event.getInteraction().getChannel().asTextChannel();
             int pos = Objects.requireNonNull(event.getInteraction().getOption("pos")).getAsInt() - 1;
-            AudioTrack[] oldQ = trackScheduler.getQueue();
+            AudioTrack[] oldQ = trackScheduler.getQueue().toArray(new AudioTrack[trackScheduler.getQueue().size()]);
             AudioTrack[] newQ = new AudioTrack[oldQ.length - 1];
-            AudioTrack removed = trackScheduler.getQueue()[pos];
+            AudioTrack removed = oldQ[pos];
             if (pos == 0) {
                 System.arraycopy(oldQ, 1, newQ, 0, oldQ.length - 1);
             } else if (pos == oldQ.length - 1) {

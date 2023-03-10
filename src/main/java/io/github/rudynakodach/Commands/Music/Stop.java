@@ -13,6 +13,7 @@ public class Stop extends ListenerAdapter {
             if(event.getMember().getVoiceState().getChannel() == null) {
                 return;
             }
+            latestChan = event.getInteraction().getChannel().asTextChannel();
             player.stopTrack();
             trackScheduler.clearQueue();
             if(trackScheduler.isQueueLooped)  {

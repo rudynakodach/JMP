@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.List;
 
@@ -76,7 +77,9 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             EmbedBuilder eb = new EmbedBuilder()
                     .setAuthor("JMP")
                     .setTitle(query)
-                    .setColor(new Color(230, 25, 216));
+                    .setColor(new Color(230, 25, 216))
+                    .setTimestamp(Instant.now())
+                    .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl());
 
             playerManager.loadItem("ytsearch: " + query, new FunctionalResultHandler(null, playlist -> {
 
@@ -154,7 +157,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
                 Button skipButton;
                 Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
-                if(trackScheduler.getQueue().length > 0) {
+                if(trackScheduler.getQueue().size() > 0) {
                     skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
                 } else {
                     skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
@@ -162,6 +165,8 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 EmbedBuilder eb = new EmbedBuilder()
                         .setColor(new Color(202, 23, 255))
                         .setAuthor("JMP")
+                        .setTimestamp(Instant.now())
+                        .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
                         .addField(player.getPlayingTrack().getInfo().title, durationString, false);
                 if (nextSong != null) {
                     eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
@@ -198,7 +203,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
             Button skipButton;
             Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
-            if(trackScheduler.getQueue().length > 0) {
+            if(trackScheduler.getQueue().size() > 0) {
                 skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
             } else {
                 skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();

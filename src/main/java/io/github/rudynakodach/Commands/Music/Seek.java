@@ -11,6 +11,7 @@ public class Seek extends ListenerAdapter {
             if(event.getMember().getVoiceState().getChannel() == null) {
                 return;
             }
+            latestChan = event.getInteraction().getChannel().asTextChannel();
 
             if(player.getPlayingTrack() == null) {
                 event.getInteraction().reply("Nie wykryto utworu.").queue();

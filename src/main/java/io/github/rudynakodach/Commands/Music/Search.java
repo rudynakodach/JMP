@@ -4,7 +4,6 @@ import com.sedmelluq.discord.lavaplayer.player.FunctionalResultHandler;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import io.github.rudynakodach.AudioPlayerSendHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -23,10 +22,15 @@ public class Search extends ListenerAdapter {
             latestChan = event.getInteraction().getChannel().asTextChannel();
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());
-            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
+
+            if(!audioHandlerSetMap.containsKey(event.getGuild().getId())) {
+                Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+                audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
+            } else if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
                 audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }
+
             String query = event.getInteraction().getOption("query").getAsString();
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("JMP")

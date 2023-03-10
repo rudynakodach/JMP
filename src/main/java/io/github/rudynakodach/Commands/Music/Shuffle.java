@@ -5,22 +5,18 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import static io.github.rudynakodach.Main.*;
+public class Shuffle extends ListenerAdapter {
 
-public class Loop extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if(event.getName().equalsIgnoreCase("loop")) {
-            if(event.getMember().getVoiceState().getChannel() == null) {
+        if(event.getName().equalsIgnoreCase("shuffle")) {
+            latestChan = event.getInteraction().getChannel().asTextChannel();
+            if(event.getMember().getVoiceState() == null) {
+                event.getInteraction().reply("Musisz być połączony z kanałem głosowym/sceną!").queue();
                 return;
             }
-
-            latestChan = event.getInteraction().getChannel().asTextChannel();
-            trackScheduler.toggleLoop();
-            if(trackScheduler.isLooped) {
-                event.getInteraction().reply(":arrows_clockwise:").queue();
-            } else {
-                event.getInteraction().reply(":arrow_right:").queue();
-            }
+            trackScheduler.shufflePlaylist(true);
+            event.getInteraction().reply(":thumbsup:").queue();
         }
     }
 }

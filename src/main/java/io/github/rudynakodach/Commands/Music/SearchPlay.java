@@ -3,7 +3,6 @@ package io.github.rudynakodach.Commands.Music;
 import com.sedmelluq.discord.lavaplayer.player.FunctionalResultHandler;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import io.github.rudynakodach.AudioPlayerSendHandler;
-import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -20,10 +19,15 @@ public class SearchPlay extends ListenerAdapter {
             latestChan = event.getInteraction().getChannel().asTextChannel();
             audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
             audioManager.openAudioConnection(event.getMember().getVoiceState().getChannel().asVoiceChannel());
-            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
+
+            if(!audioHandlerSetMap.containsKey(event.getGuild().getId())) {
+                Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+                audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
+            } else if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
                 audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }
+
             playerManager.loadItem("ytsearch: " + event.getInteraction().getOption("query").getAsString(), new FunctionalResultHandler(null, playlist -> {
                 AudioTrack e = playlist.getTracks().get(0);
                 trackScheduler.queue(e);

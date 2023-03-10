@@ -15,7 +15,7 @@ public class Jump extends ListenerAdapter {
                 return;
             }
             int position = Objects.requireNonNull(event.getInteraction().getOption("position")).getAsInt();
-            AudioTrack[] oldQueue = trackScheduler.getQueue();
+            AudioTrack[] oldQueue = trackScheduler.getQueue().toArray(new AudioTrack[trackScheduler.getQueue().size()]);
             position = Math.max(1, Math.min(oldQueue.length, position));
 
             Collection<AudioTrack> newQueue = new ArrayList<>(List.of(Arrays.copyOfRange(oldQueue, position - 1, oldQueue.length)));

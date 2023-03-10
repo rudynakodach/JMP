@@ -1,7 +1,6 @@
 package io.github.rudynakodach.Commands.Music;
 
 import io.github.rudynakodach.AudioPlayerSendHandler;
-import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +14,14 @@ public class Join extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("join")) {
             if(event.getMember().getVoiceState().getChannel() == null) {
-                event.getInteraction().reply("Musisz być połączony z kanałem głosowym!").queue();
+                event.getInteraction().reply("Nie wykryto kanału głosowego.").queue();
                 return;
             }
-            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
+
+            if(!audioHandlerSetMap.containsKey(event.getGuild().getId())) {
+                Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
+                audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
+            } else if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
                 audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }
