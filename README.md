@@ -36,6 +36,7 @@ where TOKEN is your bot's token.
 - ##### `/volume [volume]`: changes the volume to *volume* in range 0-1000
 ### Miscellaneous
 - #### `/bugreport`: displays a link to this repo's issues section
+- #### `/credits`: sends credits
 
 
 
