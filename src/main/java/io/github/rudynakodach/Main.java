@@ -47,6 +47,9 @@ public class Main {
 
                 Commands.slash("leave", "opuszcza kanal"),
 
+                Commands.slash("loadplaylist", "załadowywuje kolejke")
+                                .addOption(OptionType.STRING, "data", ".", true),
+
                 Commands.slash("play", ".")
                         .addOption(OptionType.STRING, "url", "adres URL do filmu", true),
 
@@ -75,6 +78,8 @@ public class Main {
 
                 Commands.slash("rm", "usuwa z kolejki")
                         .addOption(OptionType.INTEGER, "pos", "pozycja do usuniecia z kolejki", true),
+
+                Commands.slash("saveplaylist", "zapisuje playliste jako tekst"),
 
                 Commands.slash("copy", "kopiuje utwor na koniec kolejki")
                         .addOption(OptionType.INTEGER, "pos", "postion", true),
@@ -107,6 +112,7 @@ public class Main {
         Join joinHandler = new Join();
         Jump jumpHandler = new Jump();
         Leave leaveHandler = new Leave();
+        LoadPlaylist loadPlaylistHandler = new LoadPlaylist();
         Loop loopHandler = new Loop();
         LoopQueue lqHandler = new LoopQueue();
         NowPlaying npHandler = new NowPlaying();
@@ -114,6 +120,7 @@ public class Main {
         Play playHandler = new Play();
         Queue queueHandler = new Queue();
         RemoveAt rmHandler = new RemoveAt();
+        SavePlaylist savePlaylistHandler = new SavePlaylist();
         Search searchHandler = new Search();
         SearchPlay spHandler = new SearchPlay();
         Seek seekHandler = new Seek();
@@ -135,6 +142,7 @@ public class Main {
                 joinHandler,
                 jumpHandler,
                 leaveHandler,
+                loadPlaylistHandler,
                 loopHandler,
                 lqHandler,
                 npHandler,
@@ -142,6 +150,7 @@ public class Main {
                 playHandler,
                 queueHandler,
                 rmHandler,
+                savePlaylistHandler,
                 searchHandler,
                 spHandler,
                 seekHandler,

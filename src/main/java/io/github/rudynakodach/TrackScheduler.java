@@ -33,12 +33,14 @@ public class TrackScheduler extends AudioEventAdapter {
      * @param track The track to play or add to queue.
      */
     public void queue(AudioTrack track) {
-        if(player.getPlayingTrack() != null) {
-            queue.offer(track);
-        } else {
-            queue.offer(track);
+        queue.offer(track);
+        if(player.getPlayingTrack() == null) {
             nextTrack(false);
         }
+    }
+
+    public void queue(Collection<AudioTrack> tracks) {
+            queue.addAll(tracks);
     }
 
     public void togglePause() {
