@@ -7,7 +7,9 @@ public class Credits extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if(event.getName().equalsIgnoreCase("credits")) {
-            event.getInteraction().reply("`JMP` ~rudynakodach aka rudydev#4987").queue();
+            event.getInteraction().reply("JMP SemVer v1.5.1a\n`JMP` ~ rudynakodach aka rudydev#4987\nsrc: https://github.com/rudynakodach/JMP")
+                    .setEphemeral(true)
+                    .queue();
         }
     }
 }

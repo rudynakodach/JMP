@@ -16,7 +16,7 @@ public class Copy extends ListenerAdapter {
                 return;
             }
             int pos = Objects.requireNonNull(event.getInteraction().getOption("pos")).getAsInt() - 1;
-            AudioTrack elementToCopy = trackScheduler.getQueue().stream().toList().get(pos);
+            AudioTrack elementToCopy = trackScheduler.getQueue(false).stream().toList().get(pos);
             trackScheduler.queue(elementToCopy.makeClone());
             event.getInteraction().reply("Skopiowano `" + elementToCopy.getInfo().title + "` na koniec kolejki.").queue();
         }

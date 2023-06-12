@@ -27,8 +27,12 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             return;
         }
 
+        if(latestChan == null) {
+            latestChan = event.getInteraction().getChannel().asTextChannel();
+        }
+
         if (event.getComponentId().startsWith("YTPLAY")) {
-            if(!audioHandlerSetMap.get(Objects.requireNonNull(event.getGuild()).getId())) {
+            if(!audioHandlerSetMap.get(event.getGuild().getId())) {
                 Objects.requireNonNull(event.getGuild()).getAudioManager().setSendingHandler(new AudioPlayerSendHandler(player));
                 audioHandlerSetMap.put(Objects.requireNonNull(event.getGuild()).getId(), true);
             }
@@ -133,7 +137,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             }, null, null));
         }
 
-        else if(event.getComponentId().startsWith("REMOVE")) {
+        else if(event.getComponentId().startsWith("REMOVE") && !event.getComponentId().startsWith("REMOVEAT")) {
             String[] dataSplit = event.getComponentId().split("\\|");
             String authorName = dataSplit[1].split(":")[1].trim();
 
@@ -157,7 +161,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                 Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
                 Button skipButton;
                 Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
-                if(trackScheduler.getQueue().size() > 0) {
+                if(trackScheduler.getQueue(false).size() > 0) {
                     skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
                 } else {
                     skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
@@ -167,20 +171,24 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                         .setAuthor("JMP")
                         .setTimestamp(Instant.now())
                         .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
-                        .addField(player.getPlayingTrack().getInfo().title, durationString, false);
+                        .addField(player.getPlayingTrack().getInfo().title, durationString, false)
+                        .setFooter((trackScheduler.isQueueLooped ? "KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ?  ( trackScheduler.isQueueLooped ? "  |  " : "") + "UTWÓR ZAPĘTLONY" : ""));
+
                 if (nextSong != null) {
                     eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
                 } else {
                     eb.addField("Następne", "`Brak`", false);
                 }
+
+                Button loopControl = Button.primary("TOGGLELOOP", Emoji.fromUnicode(trackScheduler.isLooped ? "U+27A1" : "U+1F502"));
+                Button queueLoopControl = Button.primary("TOGGLEQUEUELOOP", trackScheduler.isQueueLooped ? "DLQ" : "LQ");
+                Button shuffleQueueButton = Button.primary("SHUFFLE", Emoji.fromUnicode("U+1F500"));
+
+                Collection<LayoutComponent> components = new ArrayList<>();
+                components.add(ActionRow.of(replayButton, stopButton, pauseActionButton, skipButton, removeButton));
+                components.add(ActionRow.of(loopControl, shuffleQueueButton, queueLoopControl));
                 event.getInteraction().editMessageEmbeds(eb.build())
-                        .setActionRow(
-                                replayButton,
-                                stopButton,
-                                pauseActionButton,
-                                skipButton,
-                                removeButton
-                        ).queue();
+                        .setComponents(components).queue();
             }
         }
 
@@ -192,6 +200,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
 
         else if(event.getComponentId().startsWith("TOGGLEPAUSE")) {
             trackScheduler.togglePause();
+
             AudioTrack track = player.getPlayingTrack();
 
             String durationString = trackScheduler.formatProgress(track);
@@ -203,7 +212,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
             Button skipButton;
             Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
-            if(trackScheduler.getQueue().size() > 0) {
+            if(trackScheduler.getQueue(false).size() > 0) {
                 skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
             } else {
                 skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
@@ -211,20 +220,26 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             EmbedBuilder eb = new EmbedBuilder()
                     .setColor(new Color(202, 23, 255))
                     .setAuthor("JMP")
-                    .addField(player.getPlayingTrack().getInfo().title, durationString, false);
+                    .setTimestamp(Instant.now())
+                    .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
+                    .addField(player.getPlayingTrack().getInfo().title, durationString, false)
+                    .setFooter((trackScheduler.isQueueLooped ? "KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ?  ( trackScheduler.isQueueLooped ? "  |  " : "") + "UTWÓR ZAPĘTLONY" : ""));
+
             if (nextSong != null) {
                 eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
             } else {
                 eb.addField("Następne", "`Brak`", false);
             }
+
+            Button loopControl = Button.primary("TOGGLELOOP", Emoji.fromUnicode(trackScheduler.isLooped ? "U+27A1" : "U+1F502"));
+            Button queueLoopControl = Button.primary("TOGGLEQUEUELOOP", trackScheduler.isQueueLooped ? "DLQ" : "LQ");
+            Button shuffleQueueButton = Button.primary("SHUFFLE", Emoji.fromUnicode("U+1F500"));
+
+            Collection<LayoutComponent> components = new ArrayList<>();
+            components.add(ActionRow.of(replayButton, stopButton, pauseActionButton, skipButton, removeButton));
+            components.add(ActionRow.of(loopControl, shuffleQueueButton, queueLoopControl));
             event.getInteraction().editMessageEmbeds(eb.build())
-                    .setActionRow(
-                            replayButton,
-                            stopButton,
-                            pauseActionButton,
-                            skipButton,
-                            removeButton
-                    ).queue();
+                    .setComponents(components).queue();
         }
 
         else if(event.getComponentId().startsWith("REPLAY")) {
@@ -251,6 +266,225 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                     event.getInteraction().reply("Nie udało się załadować utworu.").queue();
                 }
             });
+        }
+
+        else if(event.getComponentId().equalsIgnoreCase("shuffle")) {
+            trackScheduler.shufflePlaylist(false);
+            event.getInteraction().deferEdit().queue();
+        }
+
+        else if(event.getComponentId().equalsIgnoreCase("toggleloop")) {
+            trackScheduler.toggleLoop();
+            AudioTrack track = player.getPlayingTrack();
+
+            String durationString = trackScheduler.formatProgress(track);
+
+            AudioTrack nextSong = trackScheduler.nextElement();
+
+            Button replayButton = Button.primary("REPLAY | ID: " + player.getPlayingTrack().getInfo().identifier, Emoji.fromUnicode("U+23EE"));
+            Button stopButton = Button.primary("STOP", Emoji.fromUnicode("U+23F9"));
+            Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
+            Button skipButton;
+            Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
+            if(trackScheduler.getQueue(false).size() > 0) {
+                skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
+            } else {
+                skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
+            }
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setColor(new Color(202, 23, 255))
+                    .setAuthor("JMP")
+                    .setTimestamp(Instant.now())
+                    .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
+                    .addField(player.getPlayingTrack().getInfo().title, durationString, false)
+                    .setFooter((trackScheduler.isQueueLooped ? "KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ?  ( trackScheduler.isQueueLooped ? "  |  " : "") + "UTWÓR ZAPĘTLONY" : ""));
+
+            if (nextSong != null) {
+                eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
+            } else {
+                eb.addField("Następne", "`Brak`", false);
+            }
+
+            Button loopControl = Button.primary("TOGGLELOOP", Emoji.fromUnicode(trackScheduler.isLooped ? "U+27A1" : "U+1F502"));
+            Button queueLoopControl = Button.primary("TOGGLEQUEUELOOP", trackScheduler.isQueueLooped ? "DLQ" : "LQ");
+            Button shuffleQueueButton = Button.primary("SHUFFLE", Emoji.fromUnicode("U+1F500"));
+
+            Collection<LayoutComponent> components = new ArrayList<>();
+            components.add(ActionRow.of(replayButton, stopButton, pauseActionButton, skipButton, removeButton));
+            components.add(ActionRow.of(loopControl, shuffleQueueButton, queueLoopControl));
+            event.getInteraction().editMessageEmbeds(eb.build())
+                    .setComponents(components).queue();
+        }
+
+        else if (event.getComponentId().equalsIgnoreCase("togglequeueloop")) {
+            trackScheduler.toggleQueueLoop(trackScheduler.getQueue(true));
+            AudioTrack track = player.getPlayingTrack();
+
+            String durationString = trackScheduler.formatProgress(track);
+
+            AudioTrack nextSong = trackScheduler.nextElement();
+
+            Button replayButton = Button.primary("REPLAY | ID: " + player.getPlayingTrack().getInfo().identifier, Emoji.fromUnicode("U+23EE"));
+            Button stopButton = Button.primary("STOP", Emoji.fromUnicode("U+23F9"));
+            Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
+            Button skipButton;
+            Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
+            if(trackScheduler.getQueue(false).size() > 0) {
+                skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
+            } else {
+                skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
+            }
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setColor(new Color(202, 23, 255))
+                    .setAuthor("JMP")
+                    .setTimestamp(Instant.now())
+                    .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
+                    .addField(player.getPlayingTrack().getInfo().title, durationString, false)
+                    .setFooter((trackScheduler.isQueueLooped ? "KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ?  ( trackScheduler.isQueueLooped ? "  |  " : "") + "UTWÓR ZAPĘTLONY" : ""));
+
+            if (nextSong != null) {
+                eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
+            } else {
+                eb.addField("Następne", "`Brak`", false);
+            }
+
+            Button loopControl = Button.primary("TOGGLELOOP", Emoji.fromUnicode(trackScheduler.isLooped ? "U+27A1" : "U+1F502"));
+            Button queueLoopControl = Button.primary("TOGGLEQUEUELOOP", trackScheduler.isQueueLooped ? "DLQ" : "LQ");
+            Button shuffleQueueButton = Button.primary("SHUFFLE", Emoji.fromUnicode("U+1F500"));
+
+            Collection<LayoutComponent> components = new ArrayList<>();
+            components.add(ActionRow.of(replayButton, stopButton, pauseActionButton, skipButton, removeButton));
+            components.add(ActionRow.of(loopControl, shuffleQueueButton, queueLoopControl));
+            event.getInteraction().editMessageEmbeds(eb.build())
+                    .setComponents(components).queue();
+        }
+
+        else if(event.getComponentId().startsWith("JUMP")) {
+            // replace the queue -- jump
+            String[] data = event.getComponentId().split(" ");
+            int pos = Integer.parseInt(data[1].trim());
+
+            AudioTrack[] oldQueue = trackScheduler.getQueue(false).toArray(new AudioTrack[0]);
+
+            Collection<AudioTrack> newQueue = new ArrayList<>(List.of(Arrays.copyOfRange(oldQueue, pos - 1, oldQueue.length)));
+
+            trackScheduler.replaceQueue(newQueue, true);
+
+            //now update the embed
+            int amt = 5;
+            if(amt > trackScheduler.getQueue(false).size()) {
+                amt = trackScheduler.getQueue(false).size();
+            }
+            Collection<AudioTrack> currentQueue = trackScheduler.getQueue(amt);
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setAuthor("JMP")
+                    .setTimestamp(Instant.now())
+                    .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
+                    .setColor(new Color(66, 135, 245))
+                    .setFooter("Wyświetlanie " + currentQueue.size() + " z " + trackScheduler.getQueue(false).size() + " elementów." + (trackScheduler.isQueueLooped ? "  |  KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ? "  |  UTWÓR ZAPĘTLONY" : ""));
+
+            Collection<Button> jumpButtons = new ArrayList<>();
+            Collection<Button> rmButtons = new ArrayList<>();
+            for (int i = 0; i < amt; i++) {
+                Button jumpButton = Button.success("JUMP " + i, String.valueOf(i+1));
+                Button removeAtButton = Button.danger("REMOVEAT " + i, String.valueOf(i+1));
+                jumpButtons.add(jumpButton);
+                rmButtons.add(removeAtButton);
+            }
+            Collection<LayoutComponent> components = new ArrayList<>();
+            components.add(ActionRow.of(jumpButtons));
+            components.add(ActionRow.of(rmButtons));
+            if(player.getPlayingTrack() != null) {
+                eb.setTitle("Teraz");
+                eb.addField(player.getPlayingTrack().getInfo().title, player.getPlayingTrack().getInfo().author + " `[" + trackScheduler.formatProgress(player.getPlayingTrack()) + "]`", false);
+                eb.addBlankField(false);
+            }
+            if(amt == 0) {
+                eb.addField("Kolejka jest pusta!", "Dodaj coś za pomocą `/search`, `/play` lub `/sp`.", false);
+            } else {
+                eb.addField("Kolejka", "-----------------------------------------", false);
+                for (int i = 0; i < amt; i++) {
+                    AudioTrack e = currentQueue.stream().toList().get(i);
+                    eb.addField("`[" + (i + 1) + "]` " + e.getInfo().title, e.getInfo().author + " `[" + trackScheduler.formatDuration(e) + "]`", false);
+                }
+            }
+
+            //and send it
+            if(components.stream().toList().get(0).getComponents().size() > 0) {
+                event.getInteraction().replyEmbeds(eb.build())
+                        .setComponents(components)
+                        .queue();
+            } else {
+                event.getInteraction().replyEmbeds(eb.build())
+                        .queue();
+            }
+        }
+
+        else if (event.getComponentId().startsWith("REMOVEAT")) {
+            String[] data = event.getComponentId().split(" ");
+            int pos = Integer.parseInt(data[1].trim());
+
+            //remove the song
+            List<AudioTrack> oldQ = trackScheduler.getQueue(false).stream().toList();
+
+            if (pos < 0 || pos >= oldQ.size()) {
+                event.getInteraction().reply("Nie znaleziono pozycji w kolejce o indeksie `" + pos + "`").queue();
+                return;
+            }
+            List<AudioTrack> newQ = new ArrayList<>(oldQ);
+            newQ.remove(pos);
+
+            if(trackScheduler.isQueueLooped) {
+                pos = trackScheduler.queueToLoop.size() - (oldQ.size() + pos);
+                Collection<AudioTrack> oldQueueToLoop = trackScheduler.queueToLoop;
+                List<AudioTrack> newQueueToLoop = new ArrayList<>(oldQueueToLoop);
+                newQueueToLoop.remove(pos);
+                trackScheduler.queueToLoop = newQueueToLoop;
+            }
+
+            //make the new embed
+            int amt = 5;
+            if(amt > trackScheduler.getQueue(false).size()) {
+                amt = trackScheduler.getQueue(false).size();
+            }
+            Collection<AudioTrack> currentQueue = trackScheduler.getQueue(amt);
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setAuthor("JMP")
+                    .setTimestamp(Instant.now())
+                    .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
+                    .setColor(new Color(66, 135, 245))
+                    .setFooter("Wyświetlanie " + currentQueue.size() + " z " + trackScheduler.getQueue(false).size() + " elementów." + (trackScheduler.isQueueLooped ? "  |  KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ? "  |  UTWÓR ZAPĘTLONY" : ""));
+
+            Collection<Button> jumpButtons = new ArrayList<>();
+            Collection<Button> rmButtons = new ArrayList<>();
+            for (int i = 0; i < amt; i++) {
+                Button jumpButton = Button.success("JUMP " + i, String.valueOf(i+1));
+                Button removeAtButton = Button.danger("REMOVEAT " + i, String.valueOf(i+1));
+                jumpButtons.add(jumpButton);
+                rmButtons.add(removeAtButton);
+            }
+            Collection<LayoutComponent> components = new ArrayList<>();
+            components.add(ActionRow.of(jumpButtons));
+            components.add(ActionRow.of(rmButtons));
+            if(player.getPlayingTrack() != null) {
+                eb.setTitle("Teraz");
+                eb.addField(player.getPlayingTrack().getInfo().title, player.getPlayingTrack().getInfo().author + " `[" + trackScheduler.formatProgress(player.getPlayingTrack()) + "]`", false);
+                eb.addBlankField(false);
+            }
+            if(amt == 0) {
+                eb.addField("Kolejka jest pusta!", "Dodaj coś za pomocą `/search`, `/play` lub `/sp`.", false);
+            } else {
+                eb.addField("Kolejka", "-----------------------------------------", false);
+                for (int i = 0; i < amt; i++) {
+                    AudioTrack e = currentQueue.stream().toList().get(i);
+                    eb.addField("`[" + (i + 1) + "]` " + e.getInfo().title, e.getInfo().author + " `[" + trackScheduler.formatDuration(e) + "]`", false);
+                }
+            }
+
+            //and now send it
+            event.getInteraction().editMessageEmbeds(eb.build())
+                    .setComponents(components)
+                    .queue();
         }
     }
 }

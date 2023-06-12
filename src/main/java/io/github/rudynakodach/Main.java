@@ -2,15 +2,20 @@ package io.github.rudynakodach;
 
 import com.sedmelluq.discord.lavaplayer.player.*;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import io.github.rudynakodach.Commands.Levelling.Level;
 import io.github.rudynakodach.Commands.Misc.*;
 import io.github.rudynakodach.Commands.Music.*;
+import io.github.rudynakodach.Modules.Levelling.LevellingHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.util.HashMap;
@@ -32,22 +37,19 @@ public class Main {
         client = JDABuilder.createDefault(args[0])
                 .enableCache(CacheFlag.VOICE_STATE)
                 .addEventListeners(new ButtonInteractionHandler())
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .build();
 
-        for (Guild g : client.getGuilds()) {
-            String guildId = g.getId();
-            System.out.println("Added guild " + guildId + ".");
-            audioHandlerSetMap.put(guildId, false);
-        }
+        client.addEventListener(new onLoad());
 
         client.updateCommands().addCommands(
 
                 // music commands
-                Commands.slash("join","dolacza na kanal"),
+                Commands.slash("join","dołącza na kanał"),
 
                 Commands.slash("leave", "opuszcza kanal"),
 
-                Commands.slash("loadplaylist", "załadowywuje kolejke")
+                Commands.slash("loadplaylist", "załadowuje kolejke")
                                 .addOption(OptionType.STRING, "data", ".", true),
 
                 Commands.slash("play", ".")
@@ -55,14 +57,13 @@ public class Main {
 
                 Commands.slash("pause", "zatrzymuje albo wlacza muzyke lol"),
 
-                Commands.slash("loop", "zapetla "),
+                Commands.slash("loop", "zapętla utwór"),
 
                 Commands.slash("skip", "pomija utwor"),
 
                 Commands.slash("np", "wyswietla grany utwor"),
 
-                Commands.slash("queue", "wyswietla kolejke")
-                        .addOption(OptionType.INTEGER, "ilosc", "ilosc elementow widocznych na raz", false),
+                Commands.slash("queue", "wyswietla kolejke"),
 
                 Commands.slash("stop", "wylacza muzyke i usuwa kolejke"),
 
@@ -79,7 +80,7 @@ public class Main {
                 Commands.slash("rm", "usuwa z kolejki")
                         .addOption(OptionType.INTEGER, "pos", "pozycja do usuniecia z kolejki", true),
 
-                Commands.slash("saveplaylist", "zapisuje playliste jako tekst"),
+                Commands.slash("saveplaylist", "zapisuje playliste jako fragment tekstu"),
 
                 Commands.slash("copy", "kopiuje utwor na koniec kolejki")
                         .addOption(OptionType.INTEGER, "pos", "postion", true),
@@ -89,15 +90,20 @@ public class Main {
 
                 Commands.slash("shuffle", "losowo zmienia liste"),
 
-                Commands.slash("volume", "zmienia glosnosc")
-                        .addOption(OptionType.INTEGER, "volume", "nowa glosnosc w zakresie 0-1000", true),
+                Commands.slash("volume", "zmienia głośnośc")
+                        .addOption(OptionType.INTEGER, "volume", "nowa głośnośc w zakresie 0-1000", true),
 
-                Commands.slash("speak", "."),
+                Commands.slash("speak", "jeśli na scenie, zaczyna być mówiącym"),
 
                 Commands.slash("loopqueue", "zapętla kolejke. kolejka zostanie dodana na nowo gdy nie ma żandych utworów w kolejce"),
 
                 // misc commands
-                Commands.slash("bugreport", "report a bug")
+                Commands.slash("bugreport", "report a bug"),
+
+                Commands.slash("credits", "credits"),
+
+                // levelling commands
+                Commands.slash("level", "wyświetla poziom")
 
         ).queue();
 
@@ -105,7 +111,6 @@ public class Main {
 
         //guild join handler
         GuildJoinHandler guildJoinHandler = new GuildJoinHandler();
-        Credits creditsHandler = new Credits();
 
         //music command handlers
         Copy copyHandler = new Copy();
@@ -132,9 +137,16 @@ public class Main {
 
         //miscellaneous command handlers
         BugReport bugReportHandler = new BugReport();
+        Credits creditsHandler = new Credits();
+
+        //levelling handler
+        Level levelCommandHandler = new Level();
+        LevellingHandler levellingHandler = new LevellingHandler();
 
         client.addEventListener(
+                //misc handlers
                 guildJoinHandler,
+                bugReportHandler,
                 creditsHandler,
 
                 //music handlers
@@ -160,10 +172,23 @@ public class Main {
                 stopHandler,
                 volumeHandler,
 
-                // misc handlers
-                bugReportHandler
+                // levelling handlers
+                levelCommandHandler,
+                levellingHandler
         );
 
         System.out.println("Command handlers registered!");
+    }
+}
+
+class onLoad extends ListenerAdapter {
+
+    @Override
+    public void onReady(ReadyEvent e) {
+        for (Guild g : Main.client.getGuilds()) {
+            String guildId = g.getId();
+            System.out.println("Added guild " + guildId + ".");
+            Main.audioHandlerSetMap.put(guildId, false);
+        }
     }
 }

@@ -59,11 +59,18 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+    /**
+     * Get the currently playing track
+     * @return The track we currently are playing;
+     */
+    public AudioTrack getCurrentlyPlayingTrack() {
+        return player.getPlayingTrack();
+    }
 
     public void nextTrack(boolean suppressMessage) {
         if(queue.size() > 0) {
             AudioTrack nextTrack = queue.poll();
-            if(!suppressMessage || !isLooped) {
+            if(!suppressMessage) {
                 latestChan.sendMessage("Zapodany bicior: `" + nextTrack.getInfo().title + "`").queue();
             }
             player.playTrack(nextTrack);
@@ -103,8 +110,13 @@ public class TrackScheduler extends AudioEventAdapter {
         }
         return e;
     }
-    public Collection<AudioTrack> getQueue() {
+    public Collection<AudioTrack> getQueue(boolean includeCurrentTrack) {
         Collection<AudioTrack> e = new ArrayList<>();
+        if(includeCurrentTrack) {
+            if (player.getPlayingTrack() != null) {
+                e.add(player.getPlayingTrack().makeClone());
+            }
+        }
         Object[] queueArr = queue.toArray();
         for (int i = 0; i < queueArr.length - 1; i++) {
             e.add((AudioTrack)queueArr[i]);
@@ -163,7 +175,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if(includeCurrentTrack) {
             oldPlaylist.add(player.getPlayingTrack().makeClone());
         }
-        oldPlaylist.addAll(getQueue());
+        oldPlaylist.addAll(getQueue(false));
         Collections.shuffle(oldPlaylist);
         replaceQueue(oldPlaylist, false);
     }

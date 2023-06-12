@@ -34,7 +34,7 @@ public class NowPlaying extends ListenerAdapter {
                 Button pauseActionButton = Button.primary("TOGGLEPAUSE", trackScheduler.getPausedStatus() ? Emoji.fromUnicode("U+23F8") : Emoji.fromUnicode("U+25B6"));
                 Button skipButton;
                 Button removeButton = Button.danger("REMOVE | AUTHOR: " + event.getInteraction().getUser().getName(), Emoji.fromUnicode("U+1F5D1"));
-                if(trackScheduler.getQueue().size() > 0) {
+                if(trackScheduler.getQueue(false).size() > 0) {
                     skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asEnabled();
                 } else {
                     skipButton = Button.primary("SKIP", Emoji.fromUnicode("U+23E9")).asDisabled();
@@ -44,12 +44,18 @@ public class NowPlaying extends ListenerAdapter {
                         .setAuthor("JMP")
                         .setTimestamp(Instant.now())
                         .setThumbnail(client.getSelfUser().getEffectiveAvatarUrl())
-                        .addField(player.getPlayingTrack().getInfo().title, durationString, false);
+                        .addField(player.getPlayingTrack().getInfo().title, durationString, false)
+                        .setFooter((trackScheduler.isQueueLooped ? "KOLEJKA ZAPĘTLONA [" + trackScheduler.queueToLoop.size() + " elem.]" : "") + (trackScheduler.isLooped ?  ( trackScheduler.isQueueLooped ? "  |  " : "") + "UTWÓR ZAPĘTLONY" : ""));
                 if (nextSong != null) {
                     eb.addField("Następne", "`" + nextSong.getInfo().title + "`", false);
                 } else {
                     eb.addField("Następne", "`Brak`", false);
                 }
+
+                Button loopControl = Button.primary("TOGGLELOOP", Emoji.fromUnicode(trackScheduler.isLooped ? "U+27A1" : "U+1F502"));
+                Button queueLoopControl = Button.primary("TOGGLEQUEUELOOP", trackScheduler.isQueueLooped ? "DLQ" : "LQ");
+                Button shuffleQueueButton = Button.primary("SHUFFLE", Emoji.fromUnicode("U+1F500"));
+
                 event.getInteraction().replyEmbeds(eb.build())
                         .addActionRow(
                                 replayButton,
@@ -58,7 +64,9 @@ public class NowPlaying extends ListenerAdapter {
                                 skipButton,
                                 removeButton
                         ).addActionRow(
-
+                                loopControl,
+                                shuffleQueueButton,
+                                queueLoopControl
                         ).queue();
             } else {
                 event.getInteraction().reply("Nie wykryto utworu.").queue();

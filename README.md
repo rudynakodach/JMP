@@ -37,9 +37,3 @@ where TOKEN is your bot's token.
 ### Miscellaneous
 - #### `/bugreport`: displays a link to this repo's issues section
 - #### `/credits`: sends credits
-
-
-
-
-
-
