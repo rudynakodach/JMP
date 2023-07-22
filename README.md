@@ -25,7 +25,7 @@ where TOKEN is your bot's token.
 - ##### `/loop`: loops current track
 - ##### `/loopqueue`: loops the queue. updates dynamically
 - ##### `/np`: shows the currently played track
-- ##### `/queue [ilosc (OPTIONAL)]`: displays the first *amt* tracks from the queue (5 by default)
+- ##### `/queue [amt?]`: displays the first *amt* tracks from the queue (5 by default)
 - ##### `/rm [pos]`: removes the song at index *pos*
 - ##### `/search [query]`: searches for videos on YouTube giving an interface
 - ##### `/sp [query]`: like search but instant
